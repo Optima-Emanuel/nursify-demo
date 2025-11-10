@@ -13,6 +13,11 @@ const DEFAULT_FEATURES = {
 
 // Server-side: Fetch features from Edge Config
 export async function getFeatures(): Promise<Record<FeatureKey, boolean>> {
+  // Check if Edge Config is available (connection string exists)
+  if (!process.env.EDGE_CONFIG) {
+    return DEFAULT_FEATURES;
+  }
+
   try {
     const config = await get<Record<FeatureKey, boolean>>('features');
     if (config && typeof config === 'object') {
@@ -24,7 +29,10 @@ export async function getFeatures(): Promise<Record<FeatureKey, boolean>> {
       };
     }
   } catch (error) {
-    console.warn('Failed to fetch features from Edge Config:', error);
+    // Only log warnings in development, not during build
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('Failed to fetch features from Edge Config:', error);
+    }
   }
   return DEFAULT_FEATURES;
 }
