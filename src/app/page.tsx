@@ -1,39 +1,34 @@
-import Link from 'next/link';
-import env from '@/lib/env';
-import { SUPPORTED_LANGS } from '@/config/app';
+import { getFeatures } from "@/lib/features";
 
-export default function Home() {
+export default async function Home() {
+  const features = await getFeatures();
+  
+  const items = [
+    { key: "lesson" as const, path: "/lesson", label: "Lesson" },
+    { key: "dialog" as const, path: "/dialog", label: "Dialog" },
+    { key: "test" as const, path: "/test", label: "Test" },
+  ] as const;
+
   return (
-    <main className="container mx-auto px-4 py-8">
-      <div className="max-w-2xl space-y-6">
-        <section>
-          <h2 className="text-2xl font-bold mb-2">App Name</h2>
-          <p className="text-lg">{env.NEXT_PUBLIC_APP_NAME}</p>
-        </section>
+    <main className="min-h-screen p-6">
+      <h1 className="text-2xl font-semibold">Nursify Demo</h1>
+      <p className="mt-2 text-sm opacity-80">Infra ready • Features togglebar</p>
 
-        <section>
-          <h2 className="text-2xl font-bold mb-2">Supported Languages</h2>
-          <ul className="list-disc list-inside space-y-1">
-            {SUPPORTED_LANGS.map((lang) => (
-              <li key={lang}>{lang}</li>
-            ))}
-          </ul>
-        </section>
+      <ul className="mt-4 space-y-2">
+        {items.map(it => {
+          const isEnabled = features[it.key];
+          return (
+            <li key={it.key} className="flex items-center gap-3">
+              <span className={`inline-block h-2 w-2 rounded-full ${isEnabled ? "bg-green-600" : "bg-gray-300"}`} />
+              {isEnabled ? <a className="underline" href={it.path}>{it.label}</a> : <span className="opacity-60">{it.label} (aus)</span>}
+            </li>
+          );
+        })}
+      </ul>
 
-        <section>
-          <h2 className="text-2xl font-bold mb-2">API Endpoints</h2>
-          <div className="space-y-2">
-            <div>
-              <Link href="/api/health" className="text-blue-600 hover:underline">
-                /api/health
-              </Link>
-            </div>
-            <p className="text-sm text-gray-600 mt-4">
-              Note: APIs are stubbed (501)
-            </p>
-          </div>
-        </section>
-      </div>
+      <p className="mt-6 text-xs opacity-60">
+        Schalte Features via Edge Config in Vercel.
+      </p>
     </main>
   );
 }
