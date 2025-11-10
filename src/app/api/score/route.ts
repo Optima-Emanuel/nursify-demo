@@ -18,22 +18,26 @@ function tokenizeWords(s: string) {
 function levenshtein(a: string[] | string, b: string[] | string) {
   const A = Array.isArray(a) ? a : Array.from(a);
   const B = Array.isArray(b) ? b : Array.from(b);
-  const dp = Array(A.length + 1)
+  const dp: number[][] = Array(A.length + 1)
     .fill(0)
     .map(() => Array(B.length + 1).fill(0));
-  for (let i = 0; i <= A.length; i++) dp[i][0] = i;
-  for (let j = 0; j <= B.length; j++) dp[0][j] = j;
+  for (let i = 0; i <= A.length; i++) {
+    dp[i]![0] = i;
+  }
+  for (let j = 0; j <= B.length; j++) {
+    dp[0]![j] = j;
+  }
   for (let i = 1; i <= A.length; i++) {
     for (let j = 1; j <= B.length; j++) {
       const cost = A[i - 1] === B[j - 1] ? 0 : 1;
-      dp[i][j] = Math.min(
-        dp[i - 1][j] + 1, // deletion
-        dp[i][j - 1] + 1, // insertion
-        dp[i - 1][j - 1] + cost // substitution
+      dp[i]![j] = Math.min(
+        dp[i - 1]![j]! + 1, // deletion
+        dp[i]![j - 1]! + 1, // insertion
+        dp[i - 1]![j - 1]! + cost // substitution
       );
     }
   }
-  return dp[A.length][B.length];
+  return dp[A.length]![B.length]!;
 }
 
 async function handler(req: NextRequest): Promise<NextResponse> {
